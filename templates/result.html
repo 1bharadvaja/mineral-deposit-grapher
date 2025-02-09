@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <title>Voxel Plot Result</title>
+  
 </head>
 <body>
   <h1>Voxel Plot Result</h1>
   <p>The following image is the voxel plot generated from your uploaded data.</p>
   <!-- Embed the image using a data URI -->
-  <img src="data:image/png;base64,{{ image_data }}" alt="Voxel Plot">
+  <img src="data:image/png;base64,{{ image_data }}" alt="Voxel Plot"> 
+
+  <div id = "plotContainer">
+  {{ plot|safe }}
+    </div>
   <br><br>
   <a href="{{ url_for('index') }}">Upload Another File</a>
 </body>

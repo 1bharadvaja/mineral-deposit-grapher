@@ -8,6 +8,8 @@ from io import BytesIO
 import base64
 import torch
 import random
+import plotly.graph_objects as go
+import plotly.offline as pyo
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
 app = Flask(__name__)
@@ -226,6 +228,18 @@ def upload():
 
 
     mask = pred_3d >= threshold
+
+    trace = go.Volume(
+        x=X.flatten(),
+        y=Y.flatten(),
+        z=Z.flatten(),
+        value=pred_3d.flatten(),
+        isomin=50,
+        opacity=1,
+        surface_count=2,
+        colorscale='Viridis'
+    )
+    
     colors = np.empty(mask.shape, dtype=object)
     colors[mask] = 'red'
     ax = plt.figure().add_subplot(projection='3d')
@@ -246,9 +260,21 @@ def upload():
 
     image_base64 = base64.b64encode(buf.getvalue()).decode('utf8')
     plt.close(fig)
-    
+
+    layout = go.Layout(
+        title="Predicted Zn_pct",
+        scene=dict(
+            xaxis=dict(title="X Axis"),
+            yaxis=dict(title="Y Axis"),
+            zaxis=dict(title="Z Axis")
+        )
+    )
+    fig = go.Figure(data=[trace], layout=layout)
+
     # Render the result page and pass the base64 image data.
-    return render_template('result.html', image_data=image_base64)
+    plot_div = pyo.plot(fig, output_type='div', include_plotlyjs=True)
+
+    return render_template('result.html', plot=plot_div, image_data = image_base64)
 
 
 if __name__ == 'main':
